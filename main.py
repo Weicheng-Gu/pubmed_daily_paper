@@ -14,7 +14,7 @@ import pandas as pd
 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from email.header import Header  # <--- 必须引入这个！
+from email.header import Header
 from datetime import datetime
 
 
@@ -202,10 +202,9 @@ def send_email():
     msg = MIMEMultipart()
     msg['From'] = SENDER_EMAIL
 
-    # 2. 设置邮件主题（关键修复点：使用 Header 对象处理中文）
     date_str = datetime.now().strftime("%Y-%m-%d")
 
-    # 3. 构建 HTML 内容
+    # 2. 构建 HTML 内容
     html_content = f"<h2>PubMed 文献更新 - {date_str}</h2><hr>"
 
     for person in set(info['name']):
@@ -235,13 +234,11 @@ def send_email():
                 title = paper.get("title", "")
                 abstract = paper.get("abstract", "")
 
-                # 兜底保护，防止 title/abstract 是奇怪类型
+                # 防止 title/abstract 是奇怪类型
                 if not isinstance(title, str) or not isinstance(abstract, str):
                     print(f"文献信息格式异常（title/abstract 不是字符串），跳过：{paper.get('url', '')}")
                     continue
 
-                # 注意：根据你之前的代码，summarize_paper 只接收一个参数 paper_info
-                # 如果你修改过 summarize_paper 函数，请忽略此处的修正
                 summary = summarize_paper(["breast cancer", "EMT"], paper)
 
                 print(f"正在总结关键词为 {keyword} 的第 {idx} 篇: {title[:30]}...")
@@ -258,7 +255,7 @@ def send_email():
                 <hr style="border: 0; border-top: 1px solid #eee;">
                 """
 
-        # 3. 设置邮件主题（关键修复点：使用 Header 对象处理中文）
+        # 3. 设置邮件主题
         subject_text = f"PubMed 每日推送: {paper_counts} 篇 ({date_str})"
         msg['Subject'] = Header(subject_text, 'utf-8')
         # 4. 将 HTML 正文添加到邮件中（指定 utf-8 编码）

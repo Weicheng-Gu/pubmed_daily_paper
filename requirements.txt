@@ -1,4 +1,0 @@
-biopython
-openai
-xmltodict
-pandas

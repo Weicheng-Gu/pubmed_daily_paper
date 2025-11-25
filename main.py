@@ -150,13 +150,13 @@ def fetch_new_papers(keyword, counts):
     return papers
 
 
-def summarize_paper(keywords, paper_info):
+def summarize_paper(keyword, paper_info):
     """调用 DeepSeek 总结医学文献（优化版）"""
     from openai import OpenAI
     client = OpenAI(api_key=OPENAI_API_KEY, base_url=OPENAI_BASE_URL)
 
     prompt = f"""
-你是一名{keywords}方向的高级科学家，请根据以下 PubMed 文献的标题和摘要，
+你是一名{keyword}方向的高级科学家，请根据以下 PubMed 文献的标题和摘要，
 用**严谨、客观、简洁**的风格，输出一份中文总结。
 
 请严格遵守以下格式：
@@ -239,7 +239,7 @@ def send_email():
                     print(f"文献信息格式异常（title/abstract 不是字符串），跳过：{paper.get('url', '')}")
                     continue
 
-                summary = summarize_paper(["breast cancer", "EMT"], paper)
+                summary = summarize_paper(keyword, paper)
 
                 print(f"正在总结关键词为 {keyword} 的第 {idx} 篇: {title[:30]}...")
 

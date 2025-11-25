@@ -177,7 +177,7 @@ def summarize_paper(keyword, paper_info):
 2）主要结果（Results）
    - 简要的总结最关键的结果和发现（不要编造原文没有的信息）。
 
-3）结论与意义（Conclusion）
+3）研究意义（Conclusion）
    - 文章对领域的重要性、潜在影响、临床或生物学意义（不要编造原文没有的信息）。
 
 请严格根据摘要内容，不要进行推测或编造。

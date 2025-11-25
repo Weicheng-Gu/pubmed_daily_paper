@@ -158,6 +158,8 @@ def summarize_paper(keyword, paper_info):
     prompt = f"""
 你是一名{keyword}方向的高级科学家，请根据以下 PubMed 文献的标题和摘要，
 用**严谨、客观、简洁**的风格，输出一份中文总结。
+标题: {paper_info['title']}
+摘要: {paper_info['abstract']}
 
 请严格遵守以下格式：
 

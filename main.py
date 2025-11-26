@@ -211,7 +211,7 @@ def send_email():
 
     for person in set(info['name']):
         info_ind = info[info["name"] == person].copy()
-        msg['To'] = info_ind['email'][0]
+        msg['To'] = info_ind.iloc[0, -1]
         RECEIVER_EMAIL = info_ind['email'][0]
 
         paper_counts = 0

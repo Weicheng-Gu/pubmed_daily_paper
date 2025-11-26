@@ -18,7 +18,7 @@ from email.header import Header
 from datetime import datetime
 
 
-info = pd.read_csv('info.txt', sep='\t', quotechar='~')
+info = pd.read_csv('info.csv')
 
 def fetch_new_papers(keyword, counts):
     """使用 requests 从 PubMed 获取过去 1 天更新的文献"""
@@ -200,15 +200,13 @@ def summarize_paper(keyword, paper_info):
 def send_email():
     """发送 HTML 格式邮件"""
 
-
-
     date_str = datetime.now().strftime("%Y-%m-%d")
 
     for person in set(info['name']):
         # 1. 创建邮件对象
         msg = MIMEMultipart()
         msg['From'] = SENDER_EMAIL
-        
+
         # 2. 构建 HTML 内容
         html_content = f"<h2>PubMed 文献更新 - {date_str}</h2><hr>"
 

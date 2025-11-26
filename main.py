@@ -200,16 +200,18 @@ def summarize_paper(keyword, paper_info):
 def send_email():
     """发送 HTML 格式邮件"""
 
-    # 1. 创建邮件对象
-    msg = MIMEMultipart()
-    msg['From'] = SENDER_EMAIL
+
 
     date_str = datetime.now().strftime("%Y-%m-%d")
 
-    # 2. 构建 HTML 内容
-    html_content = f"<h2>PubMed 文献更新 - {date_str}</h2><hr>"
-
     for person in set(info['name']):
+        # 1. 创建邮件对象
+        msg = MIMEMultipart()
+        msg['From'] = SENDER_EMAIL
+        
+        # 2. 构建 HTML 内容
+        html_content = f"<h2>PubMed 文献更新 - {date_str}</h2><hr>"
+
         info_ind = info[info["name"] == person].copy()
         msg['To'] = info_ind.iloc[0, -1]
         RECEIVER_EMAIL = info_ind.iloc[0, -1]

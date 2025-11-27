@@ -202,7 +202,7 @@ def send_email():
 
     date_str = datetime.now().strftime("%Y-%m-%d")
 
-    for person in set(info['name']):
+    for person in list(set(info['name'])):
         # 1. 创建邮件对象
         msg = MIMEMultipart()
         msg['From'] = SENDER_EMAIL

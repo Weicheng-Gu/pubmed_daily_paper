@@ -149,11 +149,41 @@ def fetch_new_papers(keyword, counts):
 
     return papers
 
+def get_publication_info(publication_title):
+    # EasyScholar接口地址
+    url = "https://www.easyscholar.cc/open/getPublicationRank"
+
+    # 构造请求参数
+    params = {
+        "secretKey": 'a80d766bf69f4612902d2c40469871cf',           # 你的 API 密钥
+        "publicationName": publication_title  # 期刊或会议名称，如 "Nature" 或 "CVPR"
+    }
+
+    try:
+        response = requests.get(url, params=params)
+
+        # 检查 HTTP 状态码
+        if response.status_code == 200:
+            data = response.json()
+            return data
+        else:
+            print(f"请求失败，状态码: {response.status_code}")
+            return None
+
+    except Exception as e:
+        print(f"发生错误: {e}")
+        return None
 
 def summarize_paper(keyword, paper_info):
     """调用 DeepSeek 总结医学文献（优化版）"""
     from openai import OpenAI
     client = OpenAI(api_key=OPENAI_API_KEY, base_url=OPENAI_BASE_URL)
+
+    # 获取期刊信息
+    publication_title = paper_info['journal']
+    publication_info = get_publication_info(publication_title)
+    IF = publication_info['data']['officialRank']['all']['sciif']
+    grade = publication_info['data']['officialRank']['all']['sciUpSmall']
 
     prompt = f"""
 你是一名{keyword}方向的高级科学家，请根据以下 PubMed 文献的标题和摘要，
@@ -168,7 +198,8 @@ def summarize_paper(keyword, paper_info):
 
 【期刊信息】
 - 期刊：{paper_info['journal']}
-- 查询{paper_info['journal']}的最新的影响因子和中科院分区并给出
+- 分区：{grade}
+- 影响因子：{IF}
 
 【研究关键点】
 1）研究方法（Methods）

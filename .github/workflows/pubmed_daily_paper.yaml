@@ -2,8 +2,8 @@ name: Pubmed Daily Paper
 
 on:
   schedule:
-    # 每天北京时间 05:00 运行
-    - cron: '0 21 * * *'
+    # 每天北京时间 08:00 运行
+    - cron: '0 0 * * *'
   workflow_dispatch: 
 
 jobs:

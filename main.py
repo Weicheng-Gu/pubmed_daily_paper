@@ -174,7 +174,7 @@ def get_publication_info(publication_title):
         print(f"发生错误: {e}")
         return None
 
-def summarize_paper(keyword, paper_info):
+def summarize_paper(keyword, paper_info, min_if=3):
     """调用 DeepSeek 总结医学文献（优化版）"""
     from openai import OpenAI
     client = OpenAI(api_key=OPENAI_API_KEY, base_url=OPENAI_BASE_URL)
@@ -182,13 +182,19 @@ def summarize_paper(keyword, paper_info):
     # 获取期刊信息
     publication_title = paper_info['journal']
     publication_info = get_publication_info(publication_title)
-    IF=''
-    grade =''
+
     try:
         IF = publication_info['data']['officialRank']['all']['sciif']
-        grade = publication_info['data']['officialRank']['all']['sciUpSmall']
+        grade = publication_info['data']['officialRank']['all']['sciUp']
     except (TypeError, KeyError):
         print("未查询到该文献")
+        IF = None
+        grade = "N/A"
+
+    # IF过滤
+    if IF is None or float(IF) < min_if:
+        print(f"跳过：{publication_title} 的 IF={IF} < {min_if}")
+        return f"{paper_info['title']} IF 低于{min_if}，未调用AI总结"
 
     prompt = f"""
 你是一名{keyword}方向的高级科学家，请根据以下 PubMed 文献的标题和摘要，
@@ -204,7 +210,7 @@ def summarize_paper(keyword, paper_info):
 【期刊信息】
 - 期刊：{paper_info['journal']}
 - 分区：{grade}
-- 影响因子：{IF}
+- IF ：{IF}
 
 【研究关键点】
 1）研究方法（Methods）
@@ -232,6 +238,7 @@ def summarize_paper(keyword, paper_info):
 
     except Exception as e:
         return f"AI 总结失败: {e}"
+
 
 def send_email():
     """发送 HTML 格式邮件"""

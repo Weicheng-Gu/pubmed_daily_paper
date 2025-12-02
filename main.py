@@ -187,8 +187,8 @@ def summarize_paper(keyword, paper_info):
     try:
         IF = publication_info['data']['officialRank']['all']['sciif']
         grade = publication_info['data']['officialRank']['all']['sciUpSmall']
-    except KeyError:
-        print("some keys are missing")
+    except (TypeError, KeyError):
+        print("未查询到该文献")
 
     prompt = f"""
 你是一名{keyword}方向的高级科学家，请根据以下 PubMed 文献的标题和摘要，

@@ -194,7 +194,7 @@ def summarize_paper(keyword, paper_info, min_if=3):
     # IF过滤
     if IF is None or float(IF) < min_if:
         print(f"跳过：{publication_title} 的 IF={IF} < {min_if}")
-        return f"{paper_info['title']} IF 低于{min_if}，未调用AI总结"
+        return f"{paper_info['journal']} IF 低于{min_if}，未调用AI总结"
 
     prompt = f"""
 你是一名{keyword}方向的高级科学家，请根据以下 PubMed 文献的标题和摘要，

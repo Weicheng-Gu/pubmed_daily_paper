@@ -5,6 +5,7 @@
 
 
 import os
+import re
 import requests
 import xmltodict
 import smtplib
@@ -20,7 +21,44 @@ from datetime import datetime
 
 info = pd.read_csv('info.csv')
 
-def fetch_new_papers(keyword, counts):
+def safe_extract_number(s, default=0):
+    """提取字符串中的第一个数字"""
+    try:
+        match = re.search(r'-?\d+\.?\d*', s)
+        if match:
+            return float(match.group())
+        return default
+    except (ValueError, AttributeError):
+        return default
+
+
+def get_publication_info(publication_title):
+    # EasyScholar接口地址
+    url = "https://www.easyscholar.cc/open/getPublicationRank"
+
+    # 构造请求参数
+    params = {
+        "secretKey": 'a80d766bf69f4612902d2c40469871cf',           # 你的 API 密钥
+        "publicationName": publication_title
+    }
+
+    try:
+        response = requests.get(url, params=params)
+
+        # 检查 HTTP 状态码
+        if response.status_code == 200:
+            data = response.json()
+            return data
+        else:
+            print(f"请求失败，状态码: {response.status_code}")
+            return None
+
+    except Exception as e:
+        print(f"发生错误: {e}")
+        return None
+
+
+def fetch_new_papers(keyword, counts, min_grade, min_if):
     """使用 requests 从 PubMed 获取过去 1 天更新的文献"""
 
     base_esearch = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
@@ -135,12 +173,29 @@ def fetch_new_papers(keyword, counts):
                     doi = id_obj.get("#text", "")
                     break
 
+            publication_info = get_publication_info(title)
+
+            try:
+                IF = publication_info['data']['officialRank']['all']['sciif']
+                grade = publication_info['data']['officialRank']['all']['sciUp']
+            except (TypeError, KeyError):
+                print("未查询到该文献")
+                IF = None
+                grade = None
+
+            # IF过滤
+            if IF is None or float(IF) < min_if or grade is None or safe_extract_number(grade) > min_grade:
+                print(f"跳过：{title} ")
+                continue
+
             papers.append({
                 "title": title,
                 "journal": journal_title,
                 "abstract": abstract,
                 "url": f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/",
-                "doi": doi
+                "doi": doi,
+                "grade": grade,
+                "IF": IF
             })
 
         except Exception as e:
@@ -149,52 +204,12 @@ def fetch_new_papers(keyword, counts):
 
     return papers
 
-def get_publication_info(publication_title):
-    # EasyScholar接口地址
-    url = "https://www.easyscholar.cc/open/getPublicationRank"
 
-    # 构造请求参数
-    params = {
-        "secretKey": 'a80d766bf69f4612902d2c40469871cf',           # 你的 API 密钥
-        "publicationName": publication_title  # 期刊或会议名称，如 "Nature" 或 "CVPR"
-    }
-
-    try:
-        response = requests.get(url, params=params)
-
-        # 检查 HTTP 状态码
-        if response.status_code == 200:
-            data = response.json()
-            return data
-        else:
-            print(f"请求失败，状态码: {response.status_code}")
-            return None
-
-    except Exception as e:
-        print(f"发生错误: {e}")
-        return None
 
 def summarize_paper(keyword, paper_info, min_if=3):
     """调用 DeepSeek 总结医学文献（优化版）"""
     from openai import OpenAI
     client = OpenAI(api_key=OPENAI_API_KEY, base_url=OPENAI_BASE_URL)
-
-    # 获取期刊信息
-    publication_title = paper_info['journal']
-    publication_info = get_publication_info(publication_title)
-
-    try:
-        IF = publication_info['data']['officialRank']['all']['sciif']
-        grade = publication_info['data']['officialRank']['all']['sciUp']
-    except (TypeError, KeyError):
-        print("未查询到该文献")
-        IF = None
-        grade = "N/A"
-
-    # IF过滤
-    if IF is None or float(IF) < min_if:
-        print(f"跳过：{publication_title} 的 IF={IF} < {min_if}")
-        return f"{paper_info['journal']} IF 低于{min_if}，未调用AI总结"
 
     prompt = f"""
 你是一名{keyword}方向的高级科学家，请根据以下 PubMed 文献的标题和摘要，
@@ -209,8 +224,8 @@ def summarize_paper(keyword, paper_info, min_if=3):
 
 【期刊信息】
 - 期刊：{paper_info['journal']}
-- 分区：{grade}
-- IF ：{IF}
+- 分区：{paper_info['grade']}
+- IF ：{paper_info['IF']}
 
 【研究关键点】
 1）研究方法（Methods）
@@ -257,11 +272,14 @@ def send_email():
         msg['To'] = info_ind.iloc[0, -1]
         RECEIVER_EMAIL = info_ind.iloc[0, -1]
 
+        min_grade = info_ind.iloc[0, 3]
+        min_if = info_ind.iloc[0, 4]
+
         paper_counts = 0
 
         for keyword in info_ind['keywords']:
             counts = info_ind[info_ind['keywords'] == keyword]['counts']
-            papers = fetch_new_papers(keyword, counts)
+            papers = fetch_new_papers(keyword, counts, min_grade, min_if)
 
             if not papers:
                 print("该关键词未检索到文献。")

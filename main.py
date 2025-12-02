@@ -38,7 +38,7 @@ def get_publication_info(publication_title):
 
     # 构造请求参数
     params = {
-        "secretKey": EasyScholar_API_KEY,           # 你的 API 密钥
+        "secretKey": 'a80d766bf69f4612902d2c40469871cf',           # 你的 API 密钥
         "publicationName": publication_title
     }
 
@@ -179,13 +179,13 @@ def fetch_new_papers(keyword, counts, min_grade, min_if):
                 IF = publication_info['data']['officialRank']['all']['sciif']
                 grade = publication_info['data']['officialRank']['all']['sciUp']
             except (TypeError, KeyError):
-                print("未查询到该文献")
+                print("未查询到该期刊")
                 IF = None
                 grade = None
 
             # IF过滤
             if IF is None or float(IF) < min_if or grade is None or safe_extract_number(grade) > min_grade:
-                print(f"跳过：{title} ")
+                print(f"跳过：{journal_title} ")
                 continue
 
             papers.append({

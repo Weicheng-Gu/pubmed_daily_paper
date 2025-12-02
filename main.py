@@ -38,7 +38,7 @@ def get_publication_info(publication_title):
 
     # 构造请求参数
     params = {
-        "secretKey": 'a80d766bf69f4612902d2c40469871cf',           # 你的 API 密钥
+        "secretKey": EasyScholar_API_KEY,           # 你的 API 密钥
         "publicationName": publication_title
     }
 
@@ -173,7 +173,7 @@ def fetch_new_papers(keyword, counts, min_grade, min_if):
                     doi = id_obj.get("#text", "")
                     break
 
-            publication_info = get_publication_info(title)
+            publication_info = get_publication_info(journal_title)
 
             try:
                 IF = publication_info['data']['officialRank']['all']['sciif']
@@ -206,7 +206,7 @@ def fetch_new_papers(keyword, counts, min_grade, min_if):
 
 
 
-def summarize_paper(keyword, paper_info, min_if=3):
+def summarize_paper(keyword, paper_info):
     """调用 DeepSeek 总结医学文献（优化版）"""
     from openai import OpenAI
     client = OpenAI(api_key=OPENAI_API_KEY, base_url=OPENAI_BASE_URL)
@@ -344,6 +344,8 @@ SENDER_PASSWORD = os.getenv("SENDER_PASSWORD") # 邮箱授权码 (非登录密�
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL")
+
+EasyScholar_API_KEY = os.getenv("EasyScholar_API_KEY")
 
 if __name__ == "__main__":
     if not OPENAI_API_KEY:

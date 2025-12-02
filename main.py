@@ -182,8 +182,13 @@ def summarize_paper(keyword, paper_info):
     # 获取期刊信息
     publication_title = paper_info['journal']
     publication_info = get_publication_info(publication_title)
-    IF = publication_info['data']['officialRank']['all']['sciif']
-    grade = publication_info['data']['officialRank']['all']['sciUpSmall']
+    IF=''
+    grade =''
+    try:
+        IF = publication_info['data']['officialRank']['all']['sciif']
+        grade = publication_info['data']['officialRank']['all']['sciUpSmall']
+    except KeyError:
+        print("some keys are missing")
 
     prompt = f"""
 你是一名{keyword}方向的高级科学家，请根据以下 PubMed 文献的标题和摘要，
@@ -233,7 +238,7 @@ def send_email():
 
     date_str = datetime.now().strftime("%Y-%m-%d")
 
-    for person in list(set(info['name'])):
+    for person in sorted(set(info['name'])):
         # 1. 创建邮件对象
         msg = MIMEMultipart()
         msg['From'] = SENDER_EMAIL

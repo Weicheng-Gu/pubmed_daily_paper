@@ -38,7 +38,7 @@ def get_publication_info(publication_title):
 
     # 构造请求参数
     params = {
-        "secretKey": EasyScholar_API_KEY,           # API 密钥
+        "secretKey": EASYSCHOLAR_API_KEY,           # API 密钥
         "publicationName": publication_title
     }
 
@@ -345,7 +345,7 @@ SENDER_PASSWORD = os.getenv("SENDER_PASSWORD") # 邮箱授权码 (非登录密�
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL")
 
-EasyScholar_API_KEY = os.getenv("EasyScholar_API_KEY")
+EASYSCHOLAR_API_KEY = os.getenv("EASYSCHOLAR_API_KEY")
 
 if __name__ == "__main__":
     if not OPENAI_API_KEY:

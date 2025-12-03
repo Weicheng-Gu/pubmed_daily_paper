@@ -38,7 +38,7 @@ def get_publication_info(publication_title):
 
     # 构造请求参数
     params = {
-        "secretKey": 'a80d766bf69f4612902d2c40469871cf',           # 你的 API 密钥
+        "secretKey": EasyScholar_API_KEY,           # API 密钥
         "publicationName": publication_title
     }
 
@@ -185,7 +185,7 @@ def fetch_new_papers(keyword, counts, min_grade, min_if):
 
             # IF过滤
             if IF is None or float(IF) < min_if or grade is None or safe_extract_number(grade) > min_grade:
-                print(f"跳过：{journal_title} ")
+                print(f"{title}不符合筛选要求 ")
                 continue
 
             papers.append({
@@ -223,9 +223,9 @@ def summarize_paper(keyword, paper_info):
 - 用一两句话浓缩本文最核心的研究发现或贡献。
 
 【期刊信息】
-- 期刊：{paper_info['journal']}
-- 分区：{paper_info['grade']}
-- IF ：{paper_info['IF']}
+- 期刊:{paper_info['journal']}
+- 分区:{paper_info['grade']}
+- IF :{paper_info['IF']}
 
 【研究关键点】
 1）研究方法（Methods）

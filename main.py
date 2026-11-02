@@ -242,20 +242,12 @@ def summarize_paper(keyword, paper_info):
 
     try:
         response = client.chat.completions.create(
-            model="DeepSeek-V4.1-Flash",
+            model="deepseek-flash",
             messages=[
-                {
-                    "role": "system",
-                    "content": "你是一名擅长高质量论文总结的专家。"
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
+                {"role": "system", "content": "你是一名擅长高质量论文总结的专家。"},
+                {"role": "user", "content": prompt},
             ],
-            temperature=0.2,
-            top_p=0.8,
-            max_tokens=2048
+            temperature=0.2
         )
         return response.choices[0].message.content
 
